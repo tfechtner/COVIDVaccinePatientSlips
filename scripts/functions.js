@@ -1,9 +1,169 @@
-function genPatientStickersHTML() {
+// Warn user if using IE
+var isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined' && typeof navigator !== 'undefined';
+var isIE11 = isBrowser && !!(window.MSInputMethodContext && document.documentMode);
+var isIE10 = isBrowser && /MSIE 10/.test(navigator.userAgent);
+
+if (isIE10 || isIE11) {
+    alert('This does not work with Internet Explorer. Please use Google Chrome or Firefox.')
+}
+
+// Format date into the pinnacle format
+function getMonthFromString(mon) {
+    return new Date(Date.parse(mon + " 1, 2012")).getMonth() + 1
+}
+
+function formatDate(dateString) {
+    if (dateString.includes('-')) {
+        var splitDate = dateString.split('-');
+    } else if (dateString.includes('.')) {
+        var splitDate = dateString.split('.');
+    } else if (dateString.includes('/')) {
+        var splitDate = dateString.split('/');
+    }
+
+    // Seperate out month and year
+    var month = splitDate[1];
+    var year = splitDate[2];
+
+    if (year.length == 2) {
+        year = '19' + year;
+    }
+
+    // Convert text month to int
+    var regExp = /[a-zA-Z]/g;
+
+    if (regExp.test(month)) {
+        month = getMonthFromString(month)
+    }
+
+    month = month - 1; //Javascript months are 0-11
+
+    var fomattedDate = new Date();
+    fomattedDate.setFullYear(year);
+    fomattedDate.setMonth(month);
+    fomattedDate.setDate(splitDate[0]);
+
+    return fomattedDate.toLocaleDateString(
+        'en-gb', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        }
+    ).replace(/ /g, '-').replace("Sept", "Sep")
+}
+
+// Sort list of patients alphabetically
+function sortAlphabetical(objArray) {
+    function compare(a, b) {
+        if (a.Name.toLowerCase() < b.Name.toLowerCase()) {
+            return -1;
+        }
+        if (a.Name.toLowerCase() > b.Name.toLowerCase()) {
+            return 1;
+        }
+        return 0;
+    }
+
+    objArray.sort(compare);
+    return objArray;
+}
+
+// Identify the column names
+function identifyCSVKeys(CSVArray) {
+    var keys = Object.keys(CSVArray[0]);
+    var nhsno_key, dob_key, name_key, address_key;
+
+    keys.forEach(function (key) {
+        lkey = key.toLowerCase();
+
+        if (lkey.includes('nhs')) {
+            nhsno_key = key;
+        }
+
+        if (lkey.includes('address')) {
+            if (lkey.includes('organisation')) {
+            } else if (lkey.includes('organization')) {
+            } else if (lkey.includes('practice')) {
+            } else if (lkey.includes('pcn')) {
+            } else {
+                address_key = key;
+            }
+        }
+
+        if (lkey.includes('dob') || lkey.includes('birth')) {
+            dob_key = key;
+        }
+
+        if (lkey.includes('name')) {
+            // Do not include if the column name has a "name" that is referencing something other than patient
+            if (lkey.includes('organisation')) {
+            } else if (lkey.includes('organization')) {
+            } else if (lkey.includes('practice')) {
+            } else if (lkey.includes('first')) {
+            } else if (lkey.includes('sur')) {
+            } else if (lkey.includes('pcn')) {
+            } else {
+                name_key = key;
+            }
+        }
+    });
+
+    return {
+        name: name_key,
+        sessiondate: 'SessionDate',
+        starttime: 'StartTime',
+        dob: dob_key,
+        nhsno: nhsno_key,
+        address: address_key
+    };
+}
+
+function toTitleCase(str) {
+    return str.toLowerCase().replace(/\b[a-z]/g, function (s) {
+        return s.toUpperCase();
+    });
+}
+
+function genReviewData(csvResult, keys) {
+    var html = `<table class="table table-striped table-sm"><thead><tr><th scope="col">#</th>`;
+
+    Object.keys(keys).forEach(function (key) {
+        html = html + `<th scope="col">${keys[key]}</th>`;
+    });
+
+    html = html + `</tr></thead>`;
+
+    csvResult.forEach(function (patient, index) {
+        if (!patient[keys['name']]) {
+            return;
+        }
+
+        html = html + `<tr><td>${index + 1}</td>`;
+
+        Object.keys(keys).forEach(function (key) {
+            let item;
+            if (key === 'name') {
+                item = toTitleCase(patient[keys[key]]);
+            } else {
+                item  = patient[keys[key]];
+            }
+            html = html + `<td>${item}</td>`;
+        });
+
+        html = html + `</tr>`;
+    });
+
+    return html + '</table>'
+}
+
+function genPatientStickersHTML(csvResult, keys, batchNumber, vaccineType) {
     var i = 0;
     var fullhtml = '';
-    
+    var vaccineChecked = $('#vaccine-check').is(':checked');
+    var batchChecked = $('#batch-check').is(':checked');
+
     csvResult.forEach(function (patient, index) {
-        if(!patient[keys['name']]){
+        if (!patient[keys['name']]) {
             return;
         }
         if (i == 0) {
@@ -11,8 +171,8 @@ function genPatientStickersHTML() {
         } else {
             start = '';
         }
-        if (i == 14) {
-            end = `</div><div class="page-break-clear"></div><div class="page-break">&nbsp;</div>`;
+        if (i == 23) {
+            end = `</div><div class="page-break"></div>`;
             i = 0;
         } else {
             end = '';
@@ -20,84 +180,61 @@ function genPatientStickersHTML() {
         }
         sessiondate = '';
         if (patient.SessionDate !== undefined) {
-            sessiondate=patient.SessionDate;
+            sessiondate = patient.SessionDate;
         }
         sessiontime = '';
         if (patient.StartTime !== undefined) {
-            sessiontime=patient.StartTime;
+            sessiontime = patient.StartTime;
         }
-        if(doseNumber==1){
-            doseHTML = `
-            <span class="semi-bold">First Dose</span>:  ` + sessiondate + ` ` + sessiontime + ` 
-            <br>Batch: `+batchNumber+`
-            <table class="second-dose">
-                <tr>
-                    <td colspan="2" class="semi-bold">Second Dose </td>
-                </tr>
-                <tr>
-                    <td>Date:</td>
-                    <td>Batch:</td>
-                </tr>
-            </table>`
-        }else if(doseNumber==2){
-            doseHTML = `
-            <table class="second-dose">
-                <tr>
-                    <td colspan="2" class="semi-bold">First Dose </td>
-                </tr>
-                <tr>
-                    <td>Date:</td>
-                    <td>Batch:</td>
-                </tr>
-            </table>
-            <span class="semi-bold">Second Dose</span>:  ` + sessiondate + ` ` + sessiontime + ` 
-            <br>Batch: `+batchNumber+`
-            `
-        }else{
-            doseHTML = `
-            <span class="semi-bold">Dose Given</span>:  ` + sessiondate + ` ` + sessiontime + ` 
-            <br>Batch: `+batchNumber+`
-            <table class="text-left">
-                <tr>
-                <td><strong>Dose:</strong></td>
-                    <td>First</td>
-                    <td>Second</td>
-                </tr>
-            </table>
-            `
+        html = start + `
+            <div class="col-sm-4">
+                <table class="sticker-qrs">
+                    <tr>
+                        <td colspan="2" class="patientName">${toTitleCase(patient[keys['name']])}</td>
+                    </tr>
+                    <tr>  
+                        <td width="55%">Date: ` + sessiondate + ` ` + sessiontime + `</td>
+                        <td rowspan="4"><div class="qr-code" id="both-qr-${index}"></div></td>
+                    </tr>
+                    <tr><td>&nbsp;</td></tr>
+                    <tr>
+                        <td>DOB: <strong>${formatDate(patient[keys['dob']])}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>NHS No: <strong>${patient[keys['nhsno']]}</strong></td>
+                    </tr>
+                    <tr><td>&nbsp;</td></tr>`;
+
+        if (vaccineChecked || batchChecked) {
+            html = html + `<tr>`;
+
+            if (vaccineChecked) {
+                html = html + `<td>Vaccine: ${vaccineType}</td>`;
+            }
+            if (batchChecked) {
+                html = html + `<td>Batch: ${batchNumber}</td>`;
+            }
+            html = html + `</tr>`;
         }
 
+        html = html + `</table>
+                <div class="qr-code single-qr" id="single-qr-${index}"></div>
+            </div>
+        ` + end;
 
-        html = start + `<div class="col-sm-4">
-          <p class="patientName">` + patient[keys['name']] + `</p>
-          Vaccine Type: <strong>`+vaccineType+`</strong><br>`
-          +doseHTML+
-          `<table class="sticker-qrs">
-          <tr>
-          <td>DOB:` + formatDate(patient[keys['dob']]) + `</td>
-          <td>NHS No:` + patient[keys['nhsno']] + `</td>
-          </tr>
-          <tr>
-          <td><div class="qr-code" id="dob-qr-` + index + `"></div></td>
-          <td><div class="qr-code" id="nhs-qr-` + index + `"></div></td>
-          </tr>
-          </table>
-          <div class="qr-code single-qr" id="single-qr-` + index + `"></div>
-          </div>` + end;
         fullhtml = fullhtml + html;
     });
+
     return fullhtml;
 }
 
 
-function genPatientSlipSegmentHTML() {
+function genPatientSlipSegmentHTML(csvResult, keys) {
     var i = 0;
     var fullhtml = '';
-    bookingText = ``;
-    bookingQR = ``;
-    
+
     csvResult.forEach(function (patient, index) {
-        if(!patient[keys['name']]){
+        if (!patient[keys['name']]) {
             return;
         }
         if (i == 0) {
@@ -105,8 +242,8 @@ function genPatientSlipSegmentHTML() {
         } else {
             start = '';
         }
-        if (i == 7) {
-            end = `</div><div class="page-break-clear"></div><div class="page-break">&nbsp;</div>`;
+        if (i == 3) {
+            end = `</div><div class="page-break"></div>`;
             i = 0;
         } else {
             end = '';
@@ -114,17 +251,12 @@ function genPatientSlipSegmentHTML() {
         }
         sessiondate = '';
         if (patient.SessionDate !== undefined) {
-            sessiondate=patient.SessionDate;
+            sessiondate = patient.SessionDate;
         }
         sessiontime = '';
         if (patient.StartTime !== undefined) {
-            sessiontime=patient.StartTime;
+            sessiontime = patient.StartTime;
         }
-        if(csvResult[0].bookingNumber!== undefined){
-            bookingText = `<td>BookingNo: ` + patient.bookingNumber + `</td>`;
-            bookingQR = `<td><div class="qr-code" id="booking-qr-` + index + `"></div></td>`;
-        }
-
         html = start + `<div class="col-print-6">
           <h1>` + patient[keys['name']] + `</h1>
           <p>Session Date: ` + sessiondate + `</p>
@@ -133,12 +265,10 @@ function genPatientSlipSegmentHTML() {
           <tr>
           <td>DOB: ` + formatDate(patient[keys['dob']]) + `</td>
           <td>NHS: ` + patient[keys['nhsno']] + `</td>
-          `+bookingText+`
           </tr>
           <tr>
           <td><div class="qr-code" id="dob-qr-` + index + `"></div></td>
           <td><div class="qr-code" id="nhs-qr-` + index + `"></div></td>
-          `+bookingQR+`
           </tr>
           </table>
           <div class="qr-code single-qr" id="single-qr-` + index + `"></div>
@@ -148,39 +278,66 @@ function genPatientSlipSegmentHTML() {
     return fullhtml;
 }
 
+function genQRCodes(csvResult, keys, type) {
+    csvResult.forEach(function (patient, index) {
+        if (!patient[keys['dob']]) {
+            return; //exit loop if no DOB
+        }
+        //Generate double QR style
+        if (type == "two") {
+            $('#dob-qr-' + index).qrcode({
+                text: formatDate(patient[keys['dob']])
+            });
+            $('#nhs-qr-' + index).qrcode({
+                text: patient[keys['nhsno']]
+            });
+            $('#both-qr-' + index).qrcode({
+                // Mike... \t for a tab and \r for 'enter' or return
+                text: formatDate(patient[keys['dob']]) + '\t' + patient[keys['nhsno']] + '\t\r'
+            });
+        } else if (type == "single") {
+            //Generate single QR style
+            const POWERSHELL_SCRIPT_2 =
+                `$ws = New-Object -ComObject wscript.shell;$ws.SendKeys('%{TAB}');sleep -s 1;For($i=1;$i-le12;$i++){$ws.SendKeys(@{TAB}@)};$ws.SendKeys(@ @);For($i=1;$i-le5;$i++){$ws.SendKeys(@{TAB}@)};$ws.SendKeys(@` + formatDate(patient[keys['dob']]) + `{TAB}` + patient[keys['nhsno']] + `{TAB} @);sleep -s 3;$ws.SendKeys(@{TAB}{TAB} @);sleep -s 1;$ws.SendKeys(@{TAB}{TAB}{TAB}{TAB}{TAB}{TAB}{TAB}{TAB}{TAB}{TAB}{TAB}{TAB}{LEFT}{TAB}{TAB}{TAB}{LEFT}@);`;
+            $(".single-qr").css('display', 'block');
+            $('#single-qr-' + index).qrcode({
+                text: POWERSHELL_SCRIPT_2
+            });
+        }
+    });
+}
 
-//Form
-function genFormHTML() {
+function genFormHTML(csvResult, keys, batchNumber, vaccineType) {
     var fullhtml = '';
     csvResult.forEach(function (patient, index) {
-        if(!patient[keys['name']]){
+        if (!patient[keys['name']]) {
             return;
         }
-        html = genFullPageHTML(patient, index);
+        html = genFullPageHTML(patient, index, keys, batchNumber, vaccineType);
         fullhtml = fullhtml + html;
     });
     return fullhtml;
 }
 
-//FullPage
-function genFullPageHTML(patient, index) {
-    var address='';
+
+function genFullPageHTML(patient, index, keys, batchNumber, vaccineType) {
+    var address = '';
     if (patient[keys['address']] !== undefined) {
-        address=patient[keys['address']];
+        address = patient[keys['address']];
     }
     var sessiondate = '';
     if (patient.SessionDate !== undefined) {
-        sessiondate=patient.SessionDate;
+        sessiondate = patient.SessionDate;
     }
     var sessiontime = '';
     if (patient.StartTime !== undefined) {
-        sessiontime=patient.StartTime;
+        sessiontime = patient.StartTime;
     }
     var RegisteredPracticeName = '';
     if (patient.RegisteredPracticeName !== undefined) {
-        RegisteredPracticeName=patient.RegisteredPracticeName;
+        RegisteredPracticeName = patient.RegisteredPracticeName;
     }
-    
+
 
     return `<div class="vaccine-form"><h1>Vaccine Record Form</h1>
 <table class="table table-bordered">
@@ -209,7 +366,7 @@ function genFullPageHTML(patient, index) {
     <tr>
         
         <td>GP Practice</td>
-        <td>`+RegisteredPracticeName+`</td>
+        <td>` + RegisteredPracticeName + `</td>
         <td></td>
         <td></td>
     </tr>
@@ -296,13 +453,13 @@ function genFullPageHTML(patient, index) {
         </tr>
         <tr>
             <td>Time of Vaccination (24hr)</td>
-            <td>`+sessiontime+`</td>
+            <td>` + sessiontime + `</td>
             <td>Date of Vaccination</td>
             <td>` + sessiondate + `</td>
         </tr>
         <tr>
             <td colspan="2">Vaccine Brand and Batch Number</td>
-            <td colspan="2">`+vaccineType+` `+batchNumber+`</td>
+            <td colspan="2">` + vaccineType + ` ` + batchNumber + `</td>
         </tr>
         <tr>
             <td colspan="2">Administration Site</td>
@@ -325,38 +482,3 @@ function genFullPageHTML(patient, index) {
     </div>
     <div class="page-break-clear"></div><div class="page-break">&nbsp;</div>`;
 }
-
-//QR Generator
-function genQRCodes() {
-    csvResult.forEach(function (patient, index) {
-        if(!patient[keys['dob']]){
-            return; //exit loop if no DOB
-        }
-        //Generate double QR style
-        $('#dob-qr-' + index).qrcode({
-            text: formatDate(patient[keys['dob']])
-        });
-        $('#nhs-qr-' + index).qrcode({
-            text: patient[keys['nhsno']]
-        });
-        if(type=="incBookingNumber"){
-            $('#booking-qr-' + index).qrcode({
-                text: patient.bookingNumber
-            });
-        }
-
-    });
-}
-
-function generateSecondDoseLabels() {
-    html = `<div id="second-dose-labels"><div class="position-fixed" style="top: 0;left: 30%;">Print using "A4" paper size in Chrome</div>`;
-    var i,j;
-    for (i = 0; i < 27; i++) {
-      html = html + `<div class="row tiny-stickers">`;
-      for (j = 0; j < 7; j++) {
-        html = html +  `<div class="col"><strong>Second Dose</strong><br>Date: `+sessionDate+` <br>Batch: `+batchNumber+`</div>`
-      }
-      html = html + `</div></div>`;
-    }
-    return html;
-  }

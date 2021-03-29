@@ -1,92 +1,93 @@
 .col-print-6 {
-  width: 50%;
-  float: left;
-  height: 350px;
+    width: 50%;
+    float: left;
+    height: 600px;
 }
 
-.page-break-clear {
-  clear: both;
-}
-
-.page-break {
-  page-break-after: always;
-  /* depreciating, use break-after */
-  break-after: page;
-  height: 0px;
-  display: block !important;
+.page-break  {
+    clear: left;
+    display: block !important;
+    height: 0px;
+    page-break-after: always;
+    break-after: page;
 }
 
 .qr-code canvas {
-  margin: 0 auto;
-  width: 100px;
-  height: 100px;
+    margin: 0 auto;
+    width: 100px;
+    height: 100px;
 }
-.single-qr {
-  text-align: center;
-  display: none;
+.single-qr{
+    text-align:center;
+    display:none;
+}
+
+html, body {
+    height: 100%
 }
 
 table {
-  text-align: center;
-  width: 100%;
+    width: 100%;
 }
 
-html,
-body {
-  height: 100%;
+table.card-info td {
+    padding: 15px;
 }
 
-.vaccine-form table {
-  text-align: left;
+.vaccine-form table{
+    text-align: left;
 }
 
-#page-2,
-#page-3,
-#page-4,
-#page-2a,
-#page-2b {
-  display: none;
+.print {
+    display: none;
 }
 
-/*Stickers page*/
+/* Labels print page layout */
+
+@page {
+    margin: 0.2in 0 0 0; /* <--- Margin at top of page */
+    outline: 1px dotted grey;
+}
+
 .stickers {
-  margin-top: 8px;
-}
-.stickers .qr-code canvas {
-  width: 40px;
-  height: 40px;
+    padding-top: 0.1in; /* <--- Margin at top of list */
 }
 
-.stickers html {
-  font-size: 0.8em;
+.stickers .col-sm-4 { /* <--- Sticker */
+    padding-top: 0.1in;
+    padding-left: 0.2in;
+    padding-right: 0.2in;
+    height: 1.975in;
+    /*outline: 1px dotted grey;*/ /* <--- Uncomment for sticker border to help align for printing */
+}
+
+.sticker-qrs { /* <--- Sticker data table */
+    margin-left: 0.1in;
+    text-align: left;
+    font-size: 0.9em;
+}
+
+.sticker-qrs tr td {
+    padding: 0;
+}
+
+.stickers .qr-code canvas { /* <--- Sticker QR code */
+    width: 0.9in;
+    height: 0.9in;
 }
 
 .patientName {
-  font-weight: bold;
-  margin-bottom: 0;
-  padding-top: 10px;
-}
-.stickers .col-sm-4 {
-  padding-left: 30px;
-  height: 265px;
-  max-height: 265px;
-}
-.sticker-qrs {
-  margin-top: 8px;
-  font-size: 0.8em;
-}
-.second-dose {
-  text-align: left;
-}
-.semi-bold {
-  font-weight: 500;
+    font-size: 1.3em;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 1in;
 }
 
-#second-dose-labels {
-  margin-top: 37px;
+.second-dose {
+    text-align: left;
 }
-.tiny-stickers .col {
-  margin-right: 13px;
-  font-size: 0.6em;
-  height: 53.35px;
+.semi-bold {
+    font-weight: 500;
 }

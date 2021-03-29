@@ -1,321 +1,365 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <title>Patient List</title>
+    <title>COVID Vaccine QR Label Generator</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!--Libraries-->
+
     <link rel="stylesheet" href="scripts/libraries/css/bootstrap.min.css">
-    
+
     <script src="scripts/libraries/js/jquery-3.5.1.min.js"></script>
     <script src="scripts/libraries/js/bootstrap.bundle.min.js"></script>
     <script src="scripts/libraries/js/jquery.csv.min.js"></script>
     <script src="scripts/libraries/js/jquery.qrcode.min.js"></script>
 
-    <!--Custom scripts-->
     <link rel="stylesheet" href="scripts/style.css">
-    <script src="scripts/helperFunctions.js"></script>
     <script src="scripts/functions.js"></script>
 </head>
 
 <body>
+<div id="input-modal" class="container-fluid pt-5 pl-5 pr-5 pb-5">
 
-    <div id="input-modal" class="container mt-5">
-        <div id="page-1">
-            <h1>COVID Vaccine QR Generator</h1>
-            <p>A free tool that allows you to convert a CSV list of patients into a printable pack of patient slips to make using Pinnacle a breeze.</p>
-            <p><i>Release Version: 3 Mar 2021</i></p>
-            <p><button type="button" class="btn btn-primary btn-block my-4" id="get-started">Get Started</button></p>
+    <h1>COVID Vaccine QR Label Generator</h1>
 
-            <div class="card">
-                <div class="card-body">
-                    <h3>Background Information</h3>
-                    <hr>
-                    <div class="alert alert-info" role="alert">
-                        This will not run in Internet Explorer. All other browsers should be fine.
-                      </div>
-                      <h4>Stickers</h4>
-                      <p>To print at the right size, use Google Chrome and 18 per sheet stickers (e.g. <a href="https://www.aosonline.co.uk/office-supplies-equipment/avery-labels-printer-labels/multipurpose-printer-labels/q-connect-multi-purpose-label-63-5x46-5mm-18-per-a4-sheet-pk-100-white">Qconnect KF26052</a>)</p>
-                        <p>The bottom row is intentionally blank.</p>
-                        <p>Set your print letter size in Chrome is <a href="img/print_settings.png">"Letter" and not "A4"</a></p>
-                    <h4>Updates and download</h4>
-                    <p>The latest version can be downloaded from the <a href="https://github.com/DrMikeyS/COVIDVaccinePatientSlips">GitHub repo.</a></p>
-                    <h4>Video Guide</h4>
-                    <p><a href="https://www.youtube.com/watch?v=pA-5K7eZB7Q" rel="nofollow">See this
-                            video</a>&nbsp;for how the process works in detail.</p>
-                    <h4>IG and Security</h4>
-                    <p>No data is transferred anywhere when using this tool, all the process is done in your web browser. The tool uses some open source libraries to work. Using the tool is entirely at your own risk. It is provided under an MIT License.</p>
-                </div>
-            </div>
+    <div class="card mt-3 tab-card">
+
+        <div class="card-header tab-card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="one-tab" data-toggle="tab" href="#one" role="tab" aria-controls="One" aria-selected="true">QR Label Generator</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="two-tab" data-toggle="tab" href="#two" role="tab" aria-controls="Two" aria-selected="false">CSV File Requirements</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="three-tab" data-toggle="tab" href="#three" role="tab" aria-controls="Three" aria-selected="false">Zebra Scanner Setup</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="four-tab" data-toggle="tab" href="#four" role="tab" aria-controls="Four" aria-selected="false">About</a>
+                </li>
+            </ul>
         </div>
 
-        <div id="page-2">
-            <div class="progress mb-3">
-                <div class="progress-bar progress-bar-striped " role="progressbar" style="width: 33%;" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100"></div>
-              </div>
-            <h2>How do you want the list to look?</h2>
-              <div class="row text-center">
-            <div class="col-sm-3">
-                <p><img src="img/demo.jpg"/></p>
-                <p><button type="button" class="btn btn-primary" id="small-qr">Small QR Slips</button></p>
-            </div>
-            <div class="col-sm-3">
-                <p><img src="img/demo_full1.jpg"/></p>
-                <p><button type="button" class="btn btn-primary" id="full-page">Full Page Form</button></p>
-            </div>
-            <div class="col-sm-3">
-                <p><img src="img/demo_sticker.jpg"/></p>
-                <p><button type="button" class="btn btn-primary" id="sticker">Patient Stickers</button><br>
-                    <i>To use on patient vaccine record cards.</i></p>
-            </div>
-            <div class="col-sm-3">
-                <p></p>
-                <p><button type="button" class="btn btn-primary" id="second-dose-labels">Second Dose Labels</button><br>
-                    <i>Tiny stickers to apply to patients who bring their first card.</i></p>
-            </div>
-        </div>
+        <div class="tab-content" id="myTabContent">
 
-          
-        </div>
+            <div class="tab-pane fade show active p-3" id="one" role="tabpanel" aria-labelledby="one-tab">
 
-        <div id="page-2a">
-            <div class="progress mb-3">
-                <div class="progress-bar progress-bar-striped " role="progressbar" style="width: 66%;" aria-valuenow="66" aria-valuemin="0" aria-valuemax="100"></div>
-              </div>
-              <p></p>
-            <h2>Information for the cards</h2>
-            <div class="alert alert-info" role="alert">
-                These fields can be left blank if desired.
-              </div>
-            <p><label for="vaccine-type">Vaccine Type</label><select class="form-control" id="vaccine-type">
-                <option></option>
-                <option>Pfizer-BioNTech</option>
-                <option>AstraZeneca</option>
-              </select></p>
-            <p><label for="batch-number">Batch Number</label><input type="text" class="form-control" id="batch-number" placeholder="Batch Number"></p>
-            <p><div class="form-check">
-                <input class="form-check-input" type="radio" name="doseNumber" id="firstDose" checked>
-                <label class="form-check-label" for="firstDose">
-                  First Dose
-                </label><br> 
-                <input class="form-check-input" type="radio" name="doseNumber" id="secondDose">
-                <label class="form-check-label" for="secondDose">
-                  Second Dose
-                </label><br> 
-                <input class="form-check-input" type="radio" name="doseNumber" id="unspecifiedDose">
-                <label class="form-check-label" for="unspecifiedDose">
-                  Unspecified Dose (you can circle on sticker)
-                </label>
-              </div></p>
-            <p><button type="button" class="btn btn-primary btn-block" id="continue">Continue</button></p>
-        </div>
+                <p class="card-text">This will not run in Internet Explorer. All other browsers should be fine.</p>
 
-        <div id="page-2b">
-            <div class="progress mb-3">
-                <div class="progress-bar progress-bar-striped " role="progressbar" style="width: 66%;" aria-valuenow="66" aria-valuemin="0" aria-valuemax="100"></div>
-              </div>
-              <p></p>
-            <h2>Information for the labels</h2>
-            <div class="alert alert-info" role="alert">
-                These fields can be left blank if desired.
-                <br>
-                    The system is designed to fit <a href="https://www.amazon.co.uk/gp/product/B000J6D39U/ref=ppx_yo_dt_b_asin_title_o01_s00?ie=UTF8&psc=1">these Avery J8658-25 tiny labels</a>.
+                <div class="card">
+                    <h6 class="card-header">1. Information for the labels</h6>
+                    <div class="card-body">
 
-              </div>
-            <p><label for="batch-number-2b">Batch Number</label><input type="text" class="form-control" id="batch-number-2b" placeholder="Batch Number"></p>
-            <p><label for="session-date">Session Date</label><input type="text" class="form-control" id="session-date" placeholder="Session Date"></p>
-            <p><button type="button" class="btn btn-primary btn-block" id="continue-2b">Continue</button></p>
-        </div>
-
-
-        <div id="page-3">
-            <div class="progress mb-3">
-                <div class="progress-bar progress-bar-striped " role="progressbar" style="width: 66%;" aria-valuenow="66" aria-valuemin="0" aria-valuemax="100"></div>
-              </div>
-              <p></p>
-            <h2>How do you want to sort the results?</h2>
-            
-            <div class="alert alert-info" role="alert">
-                <strong>Accubook Users:</strong> Choosing the "No Sorting" option will print the records in order of appointment time.
-              </div>
-            <p><button type="button" class="btn btn-primary btn-block" id="sort-alphabetical">Sort
-                    Alphabetically</button></p>
-                    <p><button type="button" class="btn btn-primary btn-block" id="no-sort">No Sorting</button>
-                    </p>
-        </div>
-        <div id="page-4">
-            <div class="progress mb-3">
-                <div class="progress-bar progress-bar-striped " role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-              </div>
-            <h2>Add your CSV File</h2>
-
-            <p>For this final step, add your CSV file containing your patient list. The file is not uploaded anywhere
-                and is processed entirely within your web browser.</p>
-            <label class="btn btn-primary btn-block my-4">
-                Choose File <input type="file" name="filename" id="filename" type="file" hidden>
-            </label>
-
-            <div class="card">
-                <div class="card-body">
-                    <h3>What should the .csv file Look Like?</h3>
-                    <p>
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>NHS Number</th>
-                                    <th>Date Of Birth</th>
-                                    <th>bookingNumber*</th>
-                                    <th>StartTime*</th>
-                                    <th>SessionDate*</th>
-                                    </tr>
-                                    <tr>
-                                        <td>Bloggs, Joe</td>
-                                        <td>123 456 1234</td>
-                                        <td>12/01/1956</td>
-                                        <td>123456</td>
-                                        <td>18:30</td>
-                                        <td>08/01/2021</td>
-                                    </tr>
+                        <table class="card-info">
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="form-check-input" id="vaccine-check" checked>
+                                    <label for="vaccine-check">Vaccine Type*</label>
+                                    <select class="form-control" id="vaccine-type">
+                                        <option value="" disabled selected>Select...</option>
+                                        <option>Pfizer-BioNTech</option>
+                                        <option>AstraZeneca</option>
+                                        <option>Other</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="checkbox" class="form-check-input" id="batch-check" checked>
+                                    <label for="batch-check">Batch Number*</label>
+                                    <input type="text" class="form-control" id="batch-number" placeholder="Enter...">
+                                </td>
+                                <td>
+                                    <label for="batch-number">Sort</label><br/>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1" checked>
+                                        <label class="form-check-label" for="inlineRadio1">No Sort</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                        <label class="form-check-label" for="inlineRadio2">Alphabetically</label>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">*These fields can be un-ticked to be left off the label.</td>
+                            </tr>
                         </table>
-                    </p>
-                    <p>*Optional</p>
-                    <p>All fields except "Name", "StartTime", "SessionDate" and "bookingNumber" will be soft matched. This means the column names or date formats do not need to be exactly as above. Dates can be in any format.</p>
-                <p>Additional fields can be included but will be ignored.</p>    
-                <p>If you are manually creating a CSV file rather than exporting from Accubook, it is best to use the dummy CSV file from the ZIP as a starting point.</p>
-                </div>
+
                     </div>
+                </div>
+
+                <br/>
+
+                <div class="card">
+                    <h6 class="card-header">2. Add the CSV File</h6>
+                    <div class="card-body">
+                        <p>Add your CSV file containing your patient list.
+                            The file is not uploaded anywhere and is processed entirely within your web browser.</p>
+
+                        <label class="btn btn-primary">
+                            Choose File <input type="file" name="filename" id="filename" type="file" hidden />
+                        </label>
+                    </div>
+                </div>
+
+                <br/>
+
+                <div class="card">
+                    <h6 class="card-header">3. Review Data</h6>
+                    <div class="card-body">
+                        <p class="card-text">Once you've added the CSV file the data will appear below.</p>
+                        <p class="card-text print">Check the data and click print to create the label template. When finished use the <b>ESC</b> key to close the template.</p>
+                        <p class="card-text text-right">
+                            <button class="btn btn-primary print">Print</button>
+                        </p>
+                        <div id="review-data"></div>
+                        <p class="card-text text-right">
+                            <button class="btn btn-primary print">Print</button>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="tab-pane fade p-3" id="two" role="tabpanel" aria-labelledby="two-tab">
+
+                <h6 class="card-title">What should the .csv file Look Like?</h6>
+                <p class="card-text">All fields except "StartTime" and "SessionDate" will be soft matched. This means the column names or date formats do not need to be exactly as above. Dates can be in any format. Additional fields can be included but will be ignored.</p>
+
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>NHS Number</th>
+                        <th>Date Of Birth</th>
+                        <th>StartTime*</th>
+                        <th>SessionDate*</th>
+                    </tr>
+                    <tr>
+                        <td>Bloggs, Joe</td>
+                        <td>123 456 1234</td>
+                        <td>12/01/1956</td>
+                        <td>18:30</td>
+                        <td>08/01/2021</td>
+                    </tr>
+                </table>
+
+                <p class="card-text">*Optional</p>
+            </div>
+
+            <div class="tab-pane fade p-3" id="three" role="tabpanel" aria-labelledby="three-tab">
+
+                <h6 class="card-title">Zebra Scanner Setup</h6>
+                <p class="card-text">To setup the Zebra scanner follow the steps below...</p>
+                <p class="card-text"><a href="./docs/zebra-ds2208-en.pdf" target="_blank">Zebra Scanner Manual (DS2208)</a></p>
+
+                <div class="card">
+                    <h6 class="card-header">1. Reset & Enable</h6>
+                    <div class="card-body">
+
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-sm text-center">
+                                    Scan to reset to factory defaults<br/>
+                                    <img src="img/zebra-barcode-1.png" />
+                                </div>
+                                <div class="col-sm text-center">
+                                    Scan to enable function keys e.g. TAB & RETURN<br/>
+                                    <img src="img/zebra-barcode-2.png" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <br/>
+
+                <div class="card">
+                    <h6 class="card-header">2. Test</h6>
+                    <div class="card-body">
+                        <p class="card-text">Click in field 1 to focus the input. Scan the QR code to the right to test.</p>
+                        <table>
+                            <tr>
+                                <td>
+                                    <label for="testfield1">Field 1</label>
+                                    <input class="form-control" id="testfield1" type="text" value="" />
+                                    <br/>
+                                    <label for="testfield2">Field 2</label>
+                                    <input class="form-control" id="testfield2" type="text" value="" />
+                                    <br/>
+                                    <button type="button" id="testbutton1" class="btn btn-primary">Button</button>
+                                </td>
+                                <td class="text-center">
+                                    <br/><img src="img/zebra-barcode-3.png" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade show active p-3" id="four" role="tabpanel" aria-labelledby="four-tab">
+
+                <h6 class="card-title">Credit</h6>
+                <p class="card-text">This is an adapted & simplified version from the original by <a href="https://github.com/DrMikeyS/COVIDVaccinePatientSlips">DrMikeyS/COVIDVaccinePatientSlips</a>.</p>
+                <br/>
+                <h6 class="card-title">Avery sticker label</h6>
+                <p>The print layout for the label has been optimised for <a href="https://www.avery.co.uk/template-3475" target="_blank">Avery 3475</a> template.</p>
+            </div>
+
         </div>
     </div>
-    <div class="container-fluid" id="patient-list">
 
-    </div>
-    <script>
-        //Error logging
-        window.onerror = function(error) {
-            $("#patient-list").append(`<div class="alert alert-warning" role="alert">
-                <strong>Error:</strong> `+error+`
-                <p>Please try the following:</p>
-                <ul>
-                    
-                    <li>Try the dummy patient csv file in the package. If that works, the problem is in your CSV file</li>
+    <small class="text-muted">v1.4.0</small>
+</div>
+
+<div class="container-fluid" id="patient-list"></div>
+
+<script>
+    window.onerror = function(error) {
+        $("#patient-list").append(`
+                <div class="alert alert-warning" role="alert">
+                    <strong>Error:</strong> ${error}
+                    <p>Please try the following:</p>
+                    <ul>
+                        <li>Try the dummy patient csv file in the package. If that works, the problem is in your CSV file</li>
                         <li>Try and reformat your CSV file so it matches the dummy file</li>
-                            <li>Check there are no blank lines in the CSV file</li>
+                        <li>Check there are no blank lines in the CSV file</li>
                     </ul>
-                If this fails, contact mike@mikedavidsmith.com if you keep getting this error for support.
-              </div>`);
-        };
+              </div>
+            `);
+    };
 
-        var formStyle, sortAlphabetically;
-        $("#get-started").click(function () {
-            $("#page-1").hide();
-            $("#page-2").fadeIn();
-        });
+    $("#get-started").click(function () {
+        $("#page-1").hide();
+        $("#page-2").fadeIn();
+    });
 
-        $("#small-qr").click(function () {
-            $("#page-2").hide();
-            $("#page-3").fadeIn();
-            formStyle = 'small-qr'
-        });
+    $("#small-qr").click(function () {
+        $("#page-2").hide();
+        $("#page-3").fadeIn();
+        formStyle = 'small-qr'
+    });
 
-        $("#full-page").click(function () {
-            $("#page-2").hide();
-            $("#page-2a").fadeIn();
-            formStyle = 'full-page'
-        });
+    $("#full-page").click(function () {
+        $("#page-2").hide();
+        $("#page-2a").fadeIn();
+        formStyle = 'full-page'
+    });
 
-        $("#sticker").click(function () {
-            $("#page-2").hide();
-            $("#page-2a").fadeIn();
-            formStyle = 'sticker'
-        });
+    $("#sticker").click(function () {
+        $("#page-2").hide();
+        $("#page-2a").fadeIn();
+        formStyle = 'sticker'
+    });
 
-        $("#second-dose-labels").click(function () {
-            $("#page-2").hide();
-            $("#page-2b").show();
-            formStyle = 'second-dose-labels'
-        });
+    $("#continue").click(function () {
+        $("#page-2a").hide();
+        $("#page-3").fadeIn();
+    });
 
-        $("#continue-2b").click(function () {
-            batchNumber = $("#batch-number-2b").val();
-            sessionDate = $("#session-date").val();
-            $("#input-modal").hide();
-            $("#page-2b").hide();
-            $("#patient-list").append(generateSecondDoseLabels());
-        });
+    $("#inlineRadio1").click(function () {
+        sortAlphabetically = false;
+    });
 
-        $("#continue").click(function () {
-                $("#page-2a").hide();
-                $("#page-3").fadeIn();
-        });
+    $("#inlineRadio2").click(function () {
+        sortAlphabetically = true;
+    });
 
-        $("#no-sort").click(function () {
-            $("#page-3").hide();
-            $("#page-4").fadeIn();
-            sortAlphabetically = false;
-        });
+    $("#vaccine-check").click(function () {
+        if($(this).is(':checked')) {
+            $("#vaccine-type").prop('disabled', false);
+        } else {
+            $("#vaccine-type").val('');
+            $("#vaccine-type").prop('disabled', 'disabled');
+        }
+    });
 
-        $("#sort-alphabetical").click(function () {
-            $("#page-3").hide();
-            $("#page-4").fadeIn();
-            sortAlphabetically = true;
-        });
+    $("#batch-check").click(function () {
+        if($(this).is(':checked')) {
+            $("#batch-number").prop('disabled', false);
+        } else {
+            $("#batch-number").val('');
+            $("#batch-number").prop('disabled', 'disabled');
+        }
+    });
 
-        function generateAlert(text, elementToAppendTo, type = 'danger') {
-            var alertHTML = `<div class="alert alert-` + type + `" role="alert">
-                `+ text + `
-                </div>`;
-            console.log(alertHTML);
-            $(elementToAppendTo).prepend(alertHTML);
+    $(document).keydown(function(e) {
+        if (e.keyCode == 27) {
+            $("#patient-list").empty();
+            $("#input-modal").css('display', 'block');
+            window.scrollTo(0, 0);
+        }
+    });
+
+    var formStyle = 'sticker';
+    var sortAlphabetically;
+    var csvResult;
+    var keys;
+
+    function generateAlert(text, elementToAppendTo, type = 'danger') {
+        var alertHTML = `
+                <div class="alert alert-${type}" role="alert">${text}</div>
+            `;
+        console.log(alertHTML);
+        $(elementToAppendTo).prepend(alertHTML);
+    }
+
+    $("#filename").change(function (e) {
+
+        $("#review-data").empty();
+
+        var ext = $("input#filename").val().split(".").pop().toLowerCase();
+
+        if ($.inArray(ext, ["csv"]) == -1) {
+            // generateAlert('Error: The file type is not CSV.', '#');
+            alert('Error: The file type is not CSV.');
+            return false;
         }
 
-        //GLOBALS
-        var batchNumber,vaccineType,doseNumber=1,keys,type="",sessionDate;
+        if (e.target.files != undefined) {
 
-        $("#filename").change(function (e) {
-            if($('#secondDose').is(':checked')) { doseNumber=2; }else 
-            if($('#unspecifiedDose').is(':checked')) { doseNumber=3; }
-            
-            var ext = $("input#filename").val().split(".").pop().toLowerCase();
-            if ($.inArray(ext, ["csv"]) == -1) {
-                generateAlert('Error: The file type is not CSV.', '#page-4')
-                return false;
-            }
-            if (e.target.files != undefined) {
-                $("#input-modal").css('display', 'none');
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    csvResult = e.target.result;
-                    csvResult = $.csv.toObjects(csvResult);
-                    keys = identifyCSVKeys(csvResult);
-                    batchNumber = $("#batch-number").val();
-                    vaccineType = $("select#vaccine-type option:checked").val();
+            var reader = new FileReader();
 
-                    if (sortAlphabetically) {
-                        csvResult = sortAlphabetical(csvResult);
-                    }
-                    if (formStyle == 'full-page') {
-                        var fullhtml = genFormHTML();
-                    } else if(formStyle == 'sticker'){
-                        var fullhtml = genPatientStickersHTML();
-                    }else{
-                        if(csvResult[0].bookingNumber!== undefined){
-                            type="incBookingNumber"; //include booking number
-                        }
-                        var fullhtml = genPatientSlipSegmentHTML();
-                    }
-                    $("#patient-list").append(fullhtml);
+            reader.onload = function (e) {
+                csvResult = $.csv.toObjects(e.target.result);
 
-                    genQRCodes();
-                    window.print();
-                };
-                reader.readAsText(e.target.files.item(0));
-            }
-            return false;
-        });
+                keys = identifyCSVKeys(csvResult);
 
-    </script>
+                if (sortAlphabetically) {
+                    csvResult = sortAlphabetical(csvResult);
+                }
+
+                $("#review-data").append(genReviewData(csvResult, keys));
+                $(".print").show();
+                $("#filename").val('');
+            };
+
+            reader.readAsText(e.target.files.item(0));
+        }
+        return false;
+    });
+
+    $("button.print").click(function () {
+
+        $("#input-modal").css('display', 'none');
+
+        var type="two";
+        var batchNumber = $("#batch-number").val();
+        var vaccineType = $("select#vaccine-type option:checked").val();
+        var fullhtml = genPatientStickersHTML(csvResult, keys, batchNumber, vaccineType);
+
+        $("#patient-list").append(fullhtml);
+
+        genQRCodes(csvResult, keys, type);
+        window.print();
+    });
+
+    window.onafterprint = function() {
+
+    }
+
+</script>
 </body>
 
 </html>
