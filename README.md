@@ -12,11 +12,11 @@ This takes your list of patients for a vaccine session and for each patient gene
 | ![](img/demo_sticker_v2.png?raw=true)  |
 
 ##  Testing
-There is a [dummy patient csv](docs/dummy-patient-list.csv) file you can download here to try it.
+There is a [dummy patient csv](docs/dummy-patient-list.csv?raw=true) file you can download here to try it.
 
 ## Run On Your Computer
 
- - [Download](COVIDVaccinePatientSlips_v1.4.0.zip) the file package
+ - [Download](COVIDVaccinePatientSlips_v1.4.0.zip?raw=true) the file package
  - Extract the zip file (right click on the file->Extract All). This step is very important as it will not run if opened from double clicking on the zip file.
  - Open "index.html" in Chrome, Firefox or Safari 
  - Follow the on-screen instructions
