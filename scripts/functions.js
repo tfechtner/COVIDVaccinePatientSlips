@@ -198,7 +198,7 @@ function genPatientStickersHTML(csvResult, keys, batchNumber, vaccineType) {
                     </tr>
                     <tr><td>&nbsp;</td></tr>
                     <tr>
-                        <td>DOB: ${patient[keys['dob']]}<strong>${formatDate(patient[keys['dob']])}</strong></td>
+                        <td>DOB: <strong>${formatDate(patient[keys['dob']])}</strong></td>
                     </tr>
                     <tr>
                         <td>NHS No: <strong>${patient[keys['nhsno']]}</strong></td>
