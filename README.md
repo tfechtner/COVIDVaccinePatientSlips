@@ -16,7 +16,7 @@ There is a [dummy patient csv](docs/dummy-patient-list.csv?raw=true) file you ca
 
 ## Run On Your Computer
 
- - [Download](COVIDVaccinePatientSlips_v1.4.0.zip?raw=true) the file package
+ - [Download](COVIDVaccinePatientSlips_v1.5.0.zip?raw=true) the file package
  - Extract the zip file (right click on the file->Extract All). This step is very important as it will not run if opened from double clicking on the zip file.
  - Open "index.html" in Chrome, Firefox or Safari 
  - Follow the on-screen instructions

@@ -22,6 +22,7 @@ function formatDate(dateString) {
     }
 
     // Seperate out month and year
+    var day = splitDate[0];
     var month = splitDate[1];
     var year = splitDate[2];
 
@@ -38,18 +39,17 @@ function formatDate(dateString) {
 
     month = month - 1; //Javascript months are 0-11
 
-    var fomattedDate = new Date();
-    fomattedDate.setFullYear(year);
-    fomattedDate.setMonth(month);
-    fomattedDate.setDate(splitDate[0]);
+    var fomattedDate = new Date(year, month, day);
 
-    return fomattedDate.toLocaleDateString(
+    var date = fomattedDate.toLocaleDateString(
         'en-gb', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'
         }
-    ).replace(/ /g, '-').replace("Sept", "Sep")
+    ).replace(/ /g, '-').replace("Sept", "Sep");
+
+    return date;
 }
 
 // Sort list of patients alphabetically
@@ -198,7 +198,7 @@ function genPatientStickersHTML(csvResult, keys, batchNumber, vaccineType) {
                     </tr>
                     <tr><td>&nbsp;</td></tr>
                     <tr>
-                        <td>DOB: <strong>${formatDate(patient[keys['dob']])}</strong></td>
+                        <td>DOB: ${patient[keys['dob']]}<strong>${formatDate(patient[keys['dob']])}</strong></td>
                     </tr>
                     <tr>
                         <td>NHS No: <strong>${patient[keys['nhsno']]}</strong></td>
